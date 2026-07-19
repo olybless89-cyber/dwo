@@ -26,7 +26,7 @@ function resolveConnectionString(url: string): string {
   if (!match) return url; // Already a pooler URL or non-Supabase — leave unchanged
 
   const [, scheme, user, pass, ref, rest] = match;
-  const poolerHost = "aws-0-eu-central-1.pooler.supabase.com";
+  const poolerHost = "aws-0-eu-west-1.pooler.supabase.com";
   const port = rest ?? ":5432/postgres";
   const rewritten = `${scheme}${user}.${ref}:${pass}@${poolerHost}${port}`;
   console.log("[db] Rewrote Supabase direct URL → Session pooler (IPv4)");
