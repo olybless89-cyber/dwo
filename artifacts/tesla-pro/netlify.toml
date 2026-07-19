@@ -1,11 +1,12 @@
 [build]
-  base      = "artifacts/tesla-pro"
-  command   = "npm install -g pnpm && pnpm install --frozen-lockfile=false && pnpm run build"
-  publish   = "dist/public"
+  base    = "."          # repo root (pnpm workspace)
+  command = "pnpm --filter @workspace/tesla-pro run build"
+  publish = "artifacts/tesla-pro/dist/public"
 
 [build.environment]
   NODE_VERSION = "20"
-  BASE_PATH    = "/"
+  # Set VITE_API_BASE_URL in the Netlify UI → Site settings → Environment variables
+  # Example: https://your-api.onrender.com
 
 [[redirects]]
   from   = "/*"
