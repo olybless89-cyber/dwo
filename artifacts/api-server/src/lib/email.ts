@@ -1,6 +1,13 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) {
+    console.warn("RESEND_API_KEY not set — emails will be skipped.");
+    return null;
+  }
+  return new Resend(key);
+}
 
 const FROM = "Tesla Pro <onboarding@resend.dev>";
 
@@ -10,6 +17,8 @@ export async function sendWelcomeEmail(opts: {
   memberCode: string;
 }) {
   try {
+    const resend = getResend();
+    if (!resend) return;
     await resend.emails.send({
       from: FROM,
       to: opts.email,
@@ -56,6 +65,8 @@ export async function sendOrderConfirmationEmail(opts: {
   const label = typeLabel[opts.type] ?? "Order";
 
   try {
+    const resend = getResend();
+    if (!resend) return;
     await resend.emails.send({
       from: FROM,
       to: opts.email,
@@ -120,6 +131,8 @@ export async function sendOrderStatusEmail(opts: {
   const approved = opts.status === "approved";
 
   try {
+    const resend = getResend();
+    if (!resend) return;
     await resend.emails.send({
       from: FROM,
       to: opts.email,
