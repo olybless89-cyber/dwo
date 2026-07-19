@@ -11,4 +11,5 @@ export interface RegisterRequest {
   password: string;
   firstName: string;
   lastName: string;
+  phone?: string;
 }

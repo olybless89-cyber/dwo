@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, ilike, or } from "drizzle-orm";
+import { and, eq, ilike, or } from "drizzle-orm";
 import { db, usersTable } from "@workspace/db";
 import { UpdateUserBody } from "@workspace/api-zod";
 
@@ -15,18 +15,18 @@ router.get("/users", async (req, res): Promise<void> => {
 
   let query = db.select().from(usersTable).$dynamic();
 
+  const conditions = [];
   if (search) {
-    query = query.where(
-      or(
-        ilike(usersTable.email, `%${search}%`),
-        ilike(usersTable.firstName, `%${search}%`),
-        ilike(usersTable.lastName, `%${search}%`),
-      ),
-    );
-  } else if (status) {
-    query = query.where(eq(usersTable.status, status));
-  } else if (role) {
-    query = query.where(eq(usersTable.role, role));
+    conditions.push(or(
+      ilike(usersTable.email, `%${search}%`),
+      ilike(usersTable.firstName, `%${search}%`),
+      ilike(usersTable.lastName, `%${search}%`),
+    ));
+  }
+  if (status) conditions.push(eq(usersTable.status, status));
+  if (role) conditions.push(eq(usersTable.role, role));
+  if (conditions.length > 0) {
+    query = query.where(and(...conditions));
   }
 
   const users = await query.orderBy(usersTable.createdAt);

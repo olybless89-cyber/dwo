@@ -121,8 +121,8 @@ router.patch("/orders/:orderId", async (req, res): Promise<void> => {
 
   req.log.info({ orderId }, "Order updated");
 
-  // Send status email when approved or rejected (non-blocking)
-  if (parsed.data.status === "approved" || parsed.data.status === "rejected") {
+  // Send status email when confirmed or cancelled (non-blocking)
+  if (parsed.data.status === "confirmed" || parsed.data.status === "cancelled") {
     const [user] = await db.select().from(usersTable).where(eq(usersTable.id, order.userId));
     if (user) {
       sendOrderStatusEmail({
@@ -131,7 +131,7 @@ router.patch("/orders/:orderId", async (req, res): Promise<void> => {
         type: order.type,
         description: order.description,
         amount: order.amount,
-        status: parsed.data.status,
+        status: parsed.data.status === "confirmed" ? "approved" : "rejected",
       }).catch(() => {});
     }
   }

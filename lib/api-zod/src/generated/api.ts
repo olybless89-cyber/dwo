@@ -30,6 +30,7 @@ export const LoginResponse = zod.object({
   "email": zod.string(),
   "firstName": zod.string(),
   "lastName": zod.string(),
+  "phone": zod.string().optional().nullable(),
   "role": zod.enum(['user', 'admin']),
   "status": zod.enum(['active', 'pending', 'suspended']),
   "balance": zod.number(),
@@ -59,6 +60,7 @@ export const RegisterResponse = zod.object({
   "email": zod.string(),
   "firstName": zod.string(),
   "lastName": zod.string(),
+  "phone": zod.string().optional().nullable(),
   "role": zod.enum(['user', 'admin']),
   "status": zod.enum(['active', 'pending', 'suspended']),
   "balance": zod.number(),
@@ -79,6 +81,7 @@ export const GetMeResponse = zod.object({
   "email": zod.string(),
   "firstName": zod.string(),
   "lastName": zod.string(),
+  "phone": zod.string().optional().nullable(),
   "role": zod.enum(['user', 'admin']),
   "status": zod.enum(['active', 'pending', 'suspended']),
   "balance": zod.number(),
@@ -202,7 +205,7 @@ export const ListOrdersResponseItem = zod.object({
   "userId": zod.string(),
   "userEmail": zod.string(),
   "userName": zod.string(),
-  "type": zod.enum(['merchandise', 'giveaway', 'digital', 'investment']),
+  "type": zod.enum(['merchandise', 'giveaway', 'digital', 'investment', 'deposit', 'withdrawal']),
   "description": zod.string(),
   "amount": zod.number(),
   "status": zod.enum(['pending', 'confirmed', 'processing', 'delivered', 'cancelled']),
@@ -215,7 +218,7 @@ export const ListOrdersResponse = zod.array(ListOrdersResponseItem)
  * @summary Create a new order
  */
 export const CreateOrderBody = zod.object({
-  "type": zod.enum(['merchandise', 'giveaway', 'digital', 'investment']),
+  "type": zod.enum(['merchandise', 'giveaway', 'digital', 'investment', 'deposit', 'withdrawal']),
   "description": zod.string(),
   "amount": zod.number()
 })
@@ -225,7 +228,7 @@ export const CreateOrderResponse = zod.object({
   "userId": zod.string(),
   "userEmail": zod.string(),
   "userName": zod.string(),
-  "type": zod.enum(['merchandise', 'giveaway', 'digital', 'investment']),
+  "type": zod.enum(['merchandise', 'giveaway', 'digital', 'investment', 'deposit', 'withdrawal']),
   "description": zod.string(),
   "amount": zod.number(),
   "status": zod.enum(['pending', 'confirmed', 'processing', 'delivered', 'cancelled']),
@@ -245,7 +248,7 @@ export const GetOrderResponse = zod.object({
   "userId": zod.string(),
   "userEmail": zod.string(),
   "userName": zod.string(),
-  "type": zod.enum(['merchandise', 'giveaway', 'digital', 'investment']),
+  "type": zod.enum(['merchandise', 'giveaway', 'digital', 'investment', 'deposit', 'withdrawal']),
   "description": zod.string(),
   "amount": zod.number(),
   "status": zod.enum(['pending', 'confirmed', 'processing', 'delivered', 'cancelled']),
@@ -269,7 +272,7 @@ export const UpdateOrderResponse = zod.object({
   "userId": zod.string(),
   "userEmail": zod.string(),
   "userName": zod.string(),
-  "type": zod.enum(['merchandise', 'giveaway', 'digital', 'investment']),
+  "type": zod.enum(['merchandise', 'giveaway', 'digital', 'investment', 'deposit', 'withdrawal']),
   "description": zod.string(),
   "amount": zod.number(),
   "status": zod.enum(['pending', 'confirmed', 'processing', 'delivered', 'cancelled']),

@@ -14,4 +14,6 @@ export const OrderType = {
   giveaway: 'giveaway',
   digital: 'digital',
   investment: 'investment',
+  deposit: 'deposit',
+  withdrawal: 'withdrawal',
 } as const;
