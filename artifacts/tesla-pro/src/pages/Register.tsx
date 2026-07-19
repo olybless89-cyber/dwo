@@ -16,6 +16,7 @@ const registerSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Please enter a valid email address"),
+  phone: z.string().min(7, "Enter a valid phone number"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
@@ -26,7 +27,7 @@ export default function RegisterPage() {
   
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { firstName: "", lastName: "", email: "", password: "" },
+    defaultValues: { firstName: "", lastName: "", email: "", phone: "", password: "" },
   });
 
   const onSubmit = (values: z.infer<typeof registerSchema>) => {
@@ -84,6 +85,20 @@ export default function RegisterPage() {
               )}
             />
           </div>
+
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-muted-foreground uppercase text-xs tracking-wider">Phone Number</FormLabel>
+                <FormControl>
+                  <Input placeholder="+1 234 567 8900" className="bg-black/20 border-white/10 h-12 rounded-sm focus-visible:ring-primary" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             control={form.control}

@@ -49,7 +49,8 @@ export const RegisterBody = zod.object({
   "email": zod.string(),
   "password": zod.string(),
   "firstName": zod.string(),
-  "lastName": zod.string()
+  "lastName": zod.string(),
+  "phone": zod.string().optional()
 })
 
 export const RegisterResponse = zod.object({

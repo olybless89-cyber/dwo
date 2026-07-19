@@ -13,6 +13,7 @@ export const usersTable = pgTable("users", {
   balance: real("balance").notNull().default(0),
   rewardPoints: integer("reward_points").notNull().default(0),
   referralCount: integer("referral_count").notNull().default(0),
+  phone: text("phone"),
   memberCode: text("member_code").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),

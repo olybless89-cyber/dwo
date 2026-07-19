@@ -65,7 +65,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
     return;
   }
 
-  const { email, password, firstName, lastName } = parsed.data;
+  const { email, password, firstName, lastName, phone } = parsed.data;
 
   const [existing] = await db.select().from(usersTable).where(eq(usersTable.email, email.toLowerCase()));
   if (existing) {
@@ -83,6 +83,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
     passwordHash,
     firstName,
     lastName,
+    phone: phone ?? null,
     role: "user",
     status: "active",
     balance: 0,
