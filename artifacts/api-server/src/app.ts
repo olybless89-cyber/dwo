@@ -30,6 +30,8 @@ app.use(cors({
     /\.netlify\.app$/,
     /\.onrender\.com$/,
     /localhost/,
+    "https://teslafans.online",
+    "https://www.teslafans.online",
   ],
   credentials: true,
 }));
