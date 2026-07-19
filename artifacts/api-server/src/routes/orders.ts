@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { db, ordersTable, usersTable } from "@workspace/db";
 import { CreateOrderBody, UpdateOrderBody } from "@workspace/api-zod";
 import { JWT_SECRET } from "./auth";
+import { sendOrderConfirmationEmail, sendOrderStatusEmail } from "../lib/email";
 
 const router: IRouter = Router();
 
@@ -73,6 +74,16 @@ router.post("/orders", async (req, res): Promise<void> => {
   }).returning();
 
   req.log.info({ orderId: id }, "Order created");
+
+  // Send confirmation email (non-blocking)
+  sendOrderConfirmationEmail({
+    email: user.email,
+    firstName: user.firstName,
+    type: parsed.data.type,
+    description: parsed.data.description,
+    amount: parsed.data.amount,
+  }).catch(() => {});
+
   res.status(201).json(order);
 });
 
@@ -109,6 +120,22 @@ router.patch("/orders/:orderId", async (req, res): Promise<void> => {
   }
 
   req.log.info({ orderId }, "Order updated");
+
+  // Send status email when approved or rejected (non-blocking)
+  if (parsed.data.status === "approved" || parsed.data.status === "rejected") {
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, order.userId));
+    if (user) {
+      sendOrderStatusEmail({
+        email: user.email,
+        firstName: user.firstName,
+        type: order.type,
+        description: order.description,
+        amount: order.amount,
+        status: parsed.data.status,
+      }).catch(() => {});
+    }
+  }
+
   res.json(order);
 });
 

@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { db, usersTable } from "@workspace/db";
 import { LoginBody, RegisterBody } from "@workspace/api-zod";
 import { logger } from "../lib/logger";
+import { sendWelcomeEmail } from "../lib/email";
 
 const router: IRouter = Router();
 
@@ -92,6 +93,10 @@ router.post("/auth/register", async (req, res): Promise<void> => {
 
   const token = makeToken(user.id);
   req.log.info({ userId: user.id }, "User registered");
+
+  // Send welcome email (non-blocking)
+  sendWelcomeEmail({ email: user.email, firstName: user.firstName, memberCode: user.memberCode }).catch(() => {});
+
   res.status(201).json({ user: toPublicUser(user), token });
 });
 
