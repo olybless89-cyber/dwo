@@ -1,45 +1,64 @@
-# [Project name]
+# Tesla Pro Platform
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A premium membership and investment admin platform with a cinematic dark-navy design, Tesla red accents, and a full member + admin experience.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/tesla-pro run dev` — frontend (port auto-assigned, served at `/`)
+- `pnpm --filter @workspace/api-server run dev` — API server (port 8080, served at `/api`)
 - `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
+- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- Required env: `DATABASE_URL` — Postgres connection string (point to Supabase for production)
+- Required env: `SESSION_SECRET` — used as JWT signing key
+
+## Test Credentials
+
+| Role  | Email                    | Password   |
+|-------|--------------------------|------------|
+| Admin | admin@teslapro.com       | admin123   |
+| User  | sarah.chen@email.com     | user123    |
+| User  | james.morris@email.com   | user123    |
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- Frontend: React + Vite + Tailwind CSS + shadcn/ui + framer-motion + wouter
+- API: Express 5 with JWT authentication (jsonwebtoken + bcryptjs)
+- DB: PostgreSQL + Drizzle ORM (point DATABASE_URL to Supabase for production)
+- Validation: Zod, drizzle-zod, Orval codegen
+- Build: esbuild (API), Vite (frontend)
 
-## Where things live
+## Where Things Live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/tesla-pro/` — React frontend (static, deploy to Netlify/Vercel/Cloudflare Pages)
+- `artifacts/api-server/` — Express API backend (deploy to Railway/Render, pointed at Supabase DB)
+- `lib/api-spec/openapi.yaml` — single source of truth for all API contracts
+- `lib/api-client-react/` — generated React Query hooks (auto-generated, don't edit)
+- `lib/api-zod/` — generated Zod schemas used by the server (auto-generated, don't edit)
+- `lib/db/src/schema/` — Drizzle table definitions (users.ts, orders.ts)
 
-## Architecture decisions
+## Architecture Decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- JWT tokens stored in localStorage, sent as `Authorization: Bearer <token>` on every request
+- Custom fetch in `lib/api-client-react/src/custom-fetch.ts` auto-attaches the token
+- Frontend is a static build — all API calls go to `/api/*` via the shared proxy
+- Backend uses `SESSION_SECRET` env var as JWT signing key (falls back to dev default)
+- Password hashing with bcryptjs (10 rounds)
+- Single Express API server handles auth, stats, users, and orders
+- To deploy on Supabase: set `DATABASE_URL` to your Supabase PostgreSQL connection string on your backend host
 
-## Product
+## Deploying (Supabase Split)
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+1. **Backend:** Deploy `artifacts/api-server` to Railway/Render/Fly.io, set `DATABASE_URL` to your Supabase PostgreSQL URL and `SESSION_SECRET` to a secure random string
+2. **Frontend:** Build `artifacts/tesla-pro` (`pnpm --filter @workspace/tesla-pro run build`), deploy `dist/public/` to Netlify/Vercel/Cloudflare Pages, set the API base URL to your backend's public URL
 
-## User preferences
+## User Preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+_Populate as you build._
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
-
-## Pointers
-
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- After changing the OpenAPI spec, always run codegen before touching backend routes or frontend hooks
+- `zod.email()` is Zod v4 syntax — don't use `format: email` in the OpenAPI spec; use plain `type: string`
+- Push DB schema with `pnpm --filter @workspace/db run push` after any schema changes
