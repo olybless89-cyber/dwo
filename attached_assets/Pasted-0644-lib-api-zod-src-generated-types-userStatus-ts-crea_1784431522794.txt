@@ -1,0 +1,100 @@
+0644 lib/api-zod/src/generated/types/userStatus.ts
+ create mode 100644 lib/api-zod/src/index.ts
+ create mode 100644 lib/api-zod/tsconfig.json
+ create mode 100644 lib/db/drizzle.config.ts
+ create mode 100644 lib/db/package.json
+ create mode 100644 lib/db/src/index.ts
+ create mode 100644 lib/db/src/schema/index.ts
+ create mode 100644 lib/db/src/schema/orders.ts
+ create mode 100644 lib/db/src/schema/users.ts
+ create mode 100644 lib/db/tsconfig.json
+ create mode 100644 package.json
+ create mode 100644 pnpm-workspace.yaml
+ create mode 100644 replit.md
+ create mode 100644 tsconfig.base.json
+ create mode 100644 tsconfig.json
+error: src refspec main does not match any
+error: failed to push some refs to 'https://github.com/Luchys-Mirror/blessing.git'
+ceo_digitalweboracle@USERs-MacBook-Pro out % git push -u origin master --force
+remote: Repository not found.
+fatal: repository 'https://github.com/Luchys-Mirror/blessing.git/' not found
+ceo_digitalweboracle@USERs-MacBook-Pro out % 
+ceo_digitalweboracle@USERs-MacBook-Pro out % 
+ceo_digitalweboracle@USERs-MacBook-Pro out % git remote set-url origin https://github.com/olybless89-cyber/dwo.git
+git push -u origin master --force
+remote: Permission to olybless89-cyber/dwo.git denied to jeffbanks22.
+fatal: unable to access 'https://github.com/olybless89-cyber/dwo.git/': The requested URL returned error: 403
+ceo_digitalweboracle@USERs-MacBook-Pro out % 
+ceo_digitalweboracle@USERs-MacBook-Pro out % 
+ceo_digitalweboracle@USERs-MacBook-Pro out % git credential reject <<EOF
+protocol=https
+host=github.com
+EOF
+git push -u origin master --force
+Username for 'https://github.com': olybless89-cyber
+Password for 'https://olybless89-cyber@github.com': 
+remote: Invalid username or token. Password authentication is not supported for Git operations.
+fatal: Authentication failed for 'https://github.com/olybless89-cyber/dwo.git/'
+ceo_digitalweboracle@USERs-MacBook-Pro out % 
+ceo_digitalweboracle@USERs-MacBook-Pro out % git credential reject <<EOF
+protocol=https
+host=github.com
+EOF
+git push -u origin master --force
+Username for 'https://github.com': olybless89
+Password for 'https://olybless89@github.com': 
+remote: Permission to olybless89-cyber/dwo.git denied to olybless89-cyber.
+fatal: unable to access 'https://github.com/olybless89-cyber/dwo.git/': The requested URL returned error: 403
+ceo_digitalweboracle@USERs-MacBook-Pro out % git remote set-url origin https://olybless89-cyber:git remote set-url origin https://olybless89-cyber:YOUR_TOKEN_HERE@github.com/olybless89-cyber/dwo.git
+git push -u origin master --force@github.com/olybless89-cyber/dwo.git
+git push -u origin master --force
+usage: git remote set-url [--push] <name> <newurl> [<oldurl>]
+   or: git remote set-url --add <name> <newurl>
+   or: git remote set-url --delete <name> <url>
+
+    --[no-]push           manipulate push URLs
+    --[no-]add            add URL
+    --[no-]delete         delete URLs
+
+error: unknown option `force@github.com/olybless89-cyber/dwo.git'
+usage: git push [<options>] [<repository> [<refspec>...]]
+
+    -v, --[no-]verbose    be more verbose
+    -q, --[no-]quiet      be more quiet
+    --[no-]repo <repository>
+                          repository
+    --[no-]all            push all branches
+    --[no-]branches       alias of --all
+    --[no-]mirror         mirror all refs
+    -d, --[no-]delete     delete refs
+    --[no-]tags           push tags (can't be used with --all or --branches or --mirror)
+    -n, --[no-]dry-run    dry run
+    --[no-]porcelain      machine-readable output
+    -f, --[no-]force      force updates
+    --[no-]force-with-lease[=<refname>:<expect>]
+                          require old value of ref to be at this value
+    --[no-]force-if-includes
+                          require remote updates to be integrated locally
+    --[no-]recurse-submodules (check|on-demand|no)
+                          control recursive pushing of submodules
+    --[no-]thin           use thin pack
+    --[no-]receive-pack <receive-pack>
+                          receive pack program
+    --[no-]exec <receive-pack>
+                          receive pack program
+    -u, --[no-]set-upstream
+                          set upstream for git pull/status
+    --[no-]progress       force progress reporting
+    --[no-]prune          prune locally removed refs
+    --no-verify           bypass pre-push hook
+    --verify              opposite of --no-verify
+    --[no-]follow-tags    push missing but relevant tags
+    --[no-]signed[=(yes|no|if-asked)]
+                          GPG sign the push
+    --[no-]atomic         request atomic transaction on remote side
+    -o, --[no-]push-option <server-specific>
+                          option to transmit
+    -4, --ipv4            use IPv4 addresses only
+    -6, --ipv6            use IPv6 addresses only
+
+Username for 'https://github.com': 
