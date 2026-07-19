@@ -40,10 +40,13 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
 
-// Global error handler — logs real error to Render console
+// Global error handler — exposes underlying DB/runtime errors in response
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   logger.error({ err }, "Unhandled error");
-  res.status(500).json({ error: err.message ?? "Internal Server Error" });
+  res.status(500).json({
+    error: err.message ?? "Internal Server Error",
+    cause: err.cause?.message ?? String(err.cause ?? ""),
+  });
 });
 
 export default app;
