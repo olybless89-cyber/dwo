@@ -8,9 +8,15 @@ import LandingPage from '@/pages/Landing';
 import LoginPage from '@/pages/Login';
 import RegisterPage from '@/pages/Register';
 import DashboardPage from '@/pages/Dashboard';
+import ShowroomPage from '@/pages/Showroom';
+import InvestPage from '@/pages/Invest';
+import DepositPage from '@/pages/Deposit';
+import WithdrawPage from '@/pages/Withdraw';
+import TransactionsPage from '@/pages/Transactions';
 import AdminOverview from '@/pages/admin/Overview';
 import AdminUsers from '@/pages/admin/Users';
 import AdminOrders from '@/pages/admin/Orders';
+import AdminTransactions from '@/pages/admin/Transactions';
 
 const queryClient = new QueryClient();
 
@@ -20,9 +26,17 @@ function Router() {
       <Route path="/login" component={LoginPage} />
       <Route path="/register" component={RegisterPage} />
       <Route path="/dashboard" component={DashboardPage} />
+      <Route path="/showroom" component={ShowroomPage} />
+      <Route path="/invest" component={InvestPage} />
+      <Route path="/deposit" component={DepositPage} />
+      <Route path="/withdraw" component={WithdrawPage} />
+      <Route path="/transactions" component={TransactionsPage} />
+      {/* Admin */}
       <Route path="/admin/overview" component={AdminOverview} />
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/orders" component={AdminOrders} />
+      <Route path="/admin/transactions" component={AdminTransactions} />
+      {/* Public */}
       <Route path="/" component={LandingPage} />
       <Route component={NotFound} />
     </Switch>

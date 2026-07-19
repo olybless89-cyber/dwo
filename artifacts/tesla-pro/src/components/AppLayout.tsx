@@ -1,21 +1,27 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useGetMe, useLogout } from "@workspace/api-client-react";
 import { clearToken } from "@/lib/auth";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { 
-  LayoutDashboard, 
-  CreditCard, 
-  Gift, 
-  ShoppingBag, 
-  Hexagon, 
+import {
+  LayoutDashboard,
+  CreditCard,
+  Gift,
+  ShoppingBag,
+  Hexagon,
   Settings,
   ShieldAlert,
   Users,
   LogOut,
-  ChevronRight
+  TrendingUp,
+  ArrowDownLeft,
+  ArrowUpRight,
+  ClipboardList,
+  Car,
+  Menu,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +33,7 @@ export function AppLayout({ children }: LayoutProps) {
   const [location, setLocation] = useLocation();
   const { data: user, isLoading } = useGetMe();
   const logoutMutation = useLogout();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   if (isLoading) {
     return <div className="min-h-[100dvh] bg-background flex items-center justify-center"><LoadingSpinner /></div>;
@@ -47,12 +54,16 @@ export function AppLayout({ children }: LayoutProps) {
   };
 
   const isAdmin = user.role === "admin";
-  
+
   const userLinks = [
     { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-    { href: "/card", label: "Digital Card", icon: CreditCard },
-    { href: "/entries", label: "Giveaway Entries", icon: Gift },
+    { href: "/invest", label: "Invest", icon: TrendingUp },
+    { href: "/deposit", label: "Deposit", icon: ArrowDownLeft },
+    { href: "/withdraw", label: "Withdraw", icon: ArrowUpRight },
+    { href: "/transactions", label: "Transactions", icon: ClipboardList },
+    { href: "/showroom", label: "Car Showroom", icon: Car },
     { href: "/orders", label: "My Orders", icon: ShoppingBag },
+    { href: "/entries", label: "Giveaway Entries", icon: Gift },
     { href: "/assets", label: "Digital Assets", icon: Hexagon },
     { href: "/settings", label: "Settings", icon: Settings },
   ];
@@ -60,73 +71,102 @@ export function AppLayout({ children }: LayoutProps) {
   const adminLinks = [
     { href: "/admin/overview", label: "Command Center", icon: ShieldAlert },
     { href: "/admin/users", label: "User Management", icon: Users },
-    { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
+    { href: "/admin/transactions", label: "Transactions", icon: ClipboardList },
+    { href: "/admin/orders", label: "All Orders", icon: ShoppingBag },
     { href: "/admin/settings", label: "Settings", icon: Settings },
   ];
 
   const links = isAdmin ? adminLinks : userLinks;
 
-  return (
-    <div className="min-h-[100dvh] bg-background text-foreground flex">
-      {/* Sidebar */}
-      <aside className="w-72 flex-shrink-0 border-r border-border bg-card/30 hidden md:flex flex-col">
-        <div className="h-24 flex items-center px-8">
-          <Link href="/dashboard" className="font-sans font-bold tracking-[0.2em] text-lg text-white hover:text-primary transition-colors cursor-pointer">
-            TESLA PRO
-          </Link>
-        </div>
+  const SidebarContent = () => (
+    <>
+      <div className="h-20 flex items-center px-8 border-b border-border">
+        <Link href="/dashboard" className="font-sans font-bold tracking-[0.2em] text-lg text-white hover:text-primary transition-colors cursor-pointer">
+          TESLA PRO
+        </Link>
+      </div>
 
-        <div className="px-8 pb-8 pt-4">
-          <div className="flex items-center gap-4 mb-2">
-            <Avatar className="h-12 w-12 border border-white/10">
-              <AvatarFallback className="bg-primary/20 text-primary">{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
-            </Avatar>
-            <div>
-              <div className="font-medium text-white">{user.firstName} {user.lastName}</div>
-              <div className="text-xs text-primary font-medium tracking-wider uppercase mt-1">
-                {isAdmin ? "Administrator" : "Premium Member"}
-              </div>
+      <div className="px-6 py-5 border-b border-border">
+        <div className="flex items-center gap-3">
+          <Avatar className="h-10 w-10 border border-white/10 flex-shrink-0">
+            <AvatarFallback className="bg-primary/20 text-primary text-sm">{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
+          </Avatar>
+          <div className="min-w-0">
+            <div className="font-medium text-white text-sm truncate">{user.firstName} {user.lastName}</div>
+            <div className="text-xs text-primary font-medium tracking-wider uppercase mt-0.5">
+              {isAdmin ? "Administrator" : "Premium Member"}
             </div>
           </div>
         </div>
+        {!isAdmin && (
+          <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+            <span>Balance</span>
+            <span className="text-emerald-400 font-mono font-semibold">${user.balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+          </div>
+        )}
+      </div>
 
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
-          {links.map((link) => {
-            const isActive = location === link.href || location.startsWith(link.href + "/");
-            const Icon = link.icon;
-            
-            return (
-              <Link key={link.href} href={link.href}>
-                <div className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-md transition-colors cursor-pointer group relative",
-                  isActive 
-                    ? "text-white bg-white/5" 
-                    : "text-muted-foreground hover:text-white hover:bg-white/5"
-                )}>
-                  {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-md" />}
-                  <Icon className="h-5 w-5" />
-                  <span className="font-medium text-sm">{link.label}</span>
-                </div>
-              </Link>
-            );
-          })}
-        </nav>
+      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+        {links.map((link) => {
+          const isActive = location === link.href || location.startsWith(link.href + "/");
+          const Icon = link.icon;
+          return (
+            <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}>
+              <div className={cn(
+                "flex items-center gap-3 px-4 py-2.5 rounded-md transition-colors cursor-pointer group relative",
+                isActive
+                  ? "text-white bg-white/5"
+                  : "text-muted-foreground hover:text-white hover:bg-white/5"
+              )}>
+                {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-primary rounded-r-md" />}
+                <Icon className="h-4 w-4 flex-shrink-0" />
+                <span className="font-medium text-sm">{link.label}</span>
+              </div>
+            </Link>
+          );
+        })}
+      </nav>
 
-        <div className="p-4 border-t border-border mt-auto">
-          <Button 
-            variant="ghost" 
-            className="w-full justify-start text-muted-foreground hover:text-white"
-            onClick={handleLogout}
-            disabled={logoutMutation.isPending}
-          >
-            <LogOut className="h-5 w-5 mr-3" />
-            Sign Out
-          </Button>
-        </div>
+      <div className="p-3 border-t border-border">
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-muted-foreground hover:text-white text-sm"
+          onClick={handleLogout}
+          disabled={logoutMutation.isPending}
+        >
+          <LogOut className="h-4 w-4 mr-3" />
+          Sign Out
+        </Button>
+      </div>
+    </>
+  );
+
+  return (
+    <div className="min-h-[100dvh] bg-background text-foreground flex">
+      {/* Desktop Sidebar */}
+      <aside className="w-64 flex-shrink-0 border-r border-border bg-card/30 hidden md:flex flex-col">
+        <SidebarContent />
       </aside>
 
+      {/* Mobile header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-b border-border flex items-center justify-between px-5 h-14">
+        <span className="font-bold tracking-[0.2em] text-base text-white">TESLA PRO</span>
+        <Button variant="ghost" size="icon" onClick={() => setMobileOpen(!mobileOpen)} className="text-white">
+          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </Button>
+      </div>
+
+      {/* Mobile Sidebar overlay */}
+      {mobileOpen && (
+        <div className="md:hidden fixed inset-0 z-40 bg-black/60" onClick={() => setMobileOpen(false)}>
+          <div className="absolute top-14 left-0 bottom-0 w-64 bg-card border-r border-border flex flex-col" onClick={e => e.stopPropagation()}>
+            <SidebarContent />
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-gradient-to-br from-background to-card/50">
+      <main className="flex-1 overflow-y-auto bg-gradient-to-br from-background to-card/50 md:pt-0 pt-14">
         {children}
       </main>
     </div>
