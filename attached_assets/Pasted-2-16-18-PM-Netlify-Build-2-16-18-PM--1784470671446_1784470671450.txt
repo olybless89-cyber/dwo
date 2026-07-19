@@ -1,0 +1,61 @@
+2:16:18 PM: Netlify Build                                                 
+2:16:18 PM: ────────────────────────────────────────────────────────────────
+2:16:18 PM: ​
+2:16:18 PM: ❯ Version
+2:16:18 PM:   @netlify/build 36.1.5
+2:16:18 PM: ​
+2:16:18 PM: ❯ Flags
+2:16:18 PM:   accountId: 6a5b8bd1b3f79fbd1942115c
+2:16:18 PM:   baseRelDir: true
+2:16:18 PM:   buildId: 6a5cce198613d5790ab384e2
+2:16:18 PM:   deployId: 6a5cce198613d5790ab384e4
+2:16:18 PM:   packagePath: artifacts/tesla-pro
+2:16:18 PM: ​
+2:16:18 PM: ❯ Current directory
+2:16:18 PM:   /opt/build/repo
+2:16:18 PM: ​
+2:16:18 PM: ❯ Config file
+2:16:18 PM:   No config file was defined: using default values.
+2:16:18 PM: ​
+2:16:18 PM: ❯ Context
+2:16:18 PM:   production
+2:16:18 PM: ​
+2:16:18 PM: Build command from Netlify app                                
+2:16:18 PM: ────────────────────────────────────────────────────────────────
+2:16:18 PM: ​
+2:16:18 PM: $ pnpm --filter @workspace/tesla-pro run build
+2:16:19 PM: > @workspace/tesla-pro@0.0.0 build /opt/build/repo/artifacts/tesla-pro
+2:16:19 PM: > vite build --config vite.config.ts
+2:16:19 PM: vite v7.3.6 building client environment for production...
+2:16:19 PM: transforming...
+2:16:19 PM: src/components/ui/tooltip.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+2:16:20 PM: src/components/ui/progress.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+2:16:20 PM: src/components/ui/label.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+2:16:20 PM: src/components/ui/select.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+2:16:21 PM: src/components/ui/avatar.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+2:16:22 PM: ✓ 2557 modules transformed.
+2:16:22 PM: rendering chunks...
+2:16:22 PM: computing gzip size...
+2:16:22 PM: dist/public/index.html                         1.42 kB │ gzip:   0.55 kB
+2:16:22 PM: dist/public/assets/tesla-login-DDqj87Gg.jpg   97.14 kB
+2:16:22 PM: dist/public/assets/index-DEr5AmVp.css        107.99 kB │ gzip:  17.51 kB
+2:16:22 PM: dist/public/assets/index-CWSR-PlG.js         653.60 kB │ gzip: 203.53 kB
+2:16:22 PM: 
+2:16:22 PM: (!) Some chunks are larger than 500 kB after minification. Consider:
+2:16:22 PM: - Using dynamic import() to code-split the application
+2:16:22 PM: - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+2:16:22 PM: - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+2:16:22 PM: ✓ built in 3.43s
+2:16:22 PM: ​
+2:16:22 PM: (build.command completed in 4.1s)
+2:16:23 PM: ​
+2:16:23 PM: Scanning for secrets in code and build output.                
+2:16:23 PM: ────────────────────────────────────────────────────────────────
+2:16:23 PM: ​
+2:16:23 PM: Secrets scanning complete. 321 file(s) scanned. No secrets detected in build output or repo code!
+2:16:23 PM: ​
+2:16:23 PM: (Secrets scanning completed in 471ms)
+2:16:23 PM: ​
+2:16:23 PM: (Netlify Build completed in 5.1s)
+2:16:24 PM: Section completed: building
+2:16:28 PM: Finished processing build request in 17.842s
