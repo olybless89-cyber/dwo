@@ -1,66 +1,71 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { useGetMe, useCreateOrder } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 
 const AMOUNTS = [500, 1000, 2500, 5000, 10000, 25000];
-const BANKS = [
-  { id: "wire", label: "Wire Transfer", icon: "🏦", sub: "International / SWIFT — 1–3 business days" },
-  { id: "crypto", label: "USDT (TRC-20)", icon: "💎", sub: "Tether stablecoin — instant confirmation" },
-  { id: "card", label: "Debit/Credit Card", icon: "💳", sub: "Visa, Mastercard — instant" },
+const METHODS = [
+  { id: "wire",   label: "Wire Transfer",     icon: "🏦", sub: "International / SWIFT — 1–3 business days" },
+  { id: "crypto", label: "USDT (TRC-20)",      icon: "💎", sub: "Tether stablecoin — instant confirmation" },
+  { id: "card",   label: "Debit/Credit Card", icon: "💳", sub: "Visa, Mastercard — instant" },
 ];
+
+function getParams() {
+  const p = new URLSearchParams(window.location.search);
+  return { plan: p.get("plan") ?? "", amount: p.get("amount") ? Number(p.get("amount")) : null };
+}
 
 export default function DepositPage() {
   const { data: user } = useGetMe();
   const { toast } = useToast();
   const createOrder = useCreateOrder();
-  const [amount, setAmount] = useState<number | "">("");
+
+  const { plan: planName, amount: planAmount } = getParams();
+  const [amount, setAmount] = useState<number | "">(planAmount ?? "");
   const [method, setMethod] = useState("wire");
-  const [step, setStep] = useState(1);
   const [done, setDone] = useState(false);
+
+  // If navigated here from invest page, keep amount in sync on first load
+  useEffect(() => {
+    if (planAmount) setAmount(planAmount);
+  }, [planAmount]);
+
+  const description = planName
+    ? `Deposit for ${planName} Plan via ${METHODS.find(m => m.id === method)?.label}`
+    : `Deposit via ${METHODS.find(m => m.id === method)?.label}`;
 
   const handleSubmit = () => {
     if (!amount || Number(amount) < 100) {
       toast({ title: "Invalid amount", description: "Minimum deposit is $100.", variant: "destructive" });
       return;
     }
-    createOrder.mutate({
-      data: {
-        type: "deposit",
-        description: `Deposit via ${BANKS.find(b => b.id === method)?.label} — Pending approval`,
-        amount: Number(amount),
-      }
-    }, {
+    createOrder.mutate({ data: { type: "deposit", description, amount: Number(amount) } }, {
       onSuccess: () => setDone(true),
       onError: (err: any) => toast({ title: "Failed", description: err.message, variant: "destructive" }),
     });
   };
 
-  const methodInfo: Record<string, { name: string; detail: string; ref: string }> = {
-    wire: {
-      name: "Wire Transfer",
-      detail: "Send to our designated bank account. Include your member code in the reference.",
-      ref: `Reference: ${user?.memberCode || "TP-XXXX-XXXX"}`,
-    },
-    crypto: {
-      name: "USDT TRC-20",
-      detail: "Send USDT to the address below. Network: TRON (TRC-20) only.",
-      ref: "Wallet: TQn8HKm…abc123 (shown after confirmation)",
-    },
-    card: {
-      name: "Card Payment",
-      detail: "A secure payment link will be sent to your email after submission.",
-      ref: `Email: ${user?.email}`,
-    },
+  const confirmationNote: Record<string, string> = {
+    wire:   `Send the exact amount to our bank account and include your member code (${user?.memberCode ?? "TP-XXXX-XXXX"}) in the reference field. You'll receive bank details by email shortly.`,
+    crypto: `Send USDT on the TRON (TRC-20) network only. Our wallet address will be confirmed to you by email — do not send before receiving it.`,
+    card:   `A secure payment link will be emailed to ${user?.email ?? "your email"} shortly. Do not share the link with anyone.`,
   };
 
   return (
     <AppLayout>
       <div style={{ padding: "40px", maxWidth: 560, margin: "0 auto", color: "#e8eaec", fontFamily: "'Inter', system-ui, sans-serif" }}>
+
+        {/* Header */}
         <div style={{ marginBottom: 36 }}>
           <p style={{ fontSize: 11, letterSpacing: "0.3em", color: "#e31937", textTransform: "uppercase", marginBottom: 8 }}>Wallet</p>
-          <h1 style={{ fontSize: 32, fontWeight: 300, margin: "0 0 8px" }}>Deposit Funds</h1>
-          <p style={{ color: "#8b95a1", fontSize: 14 }}>Add funds to your Tesla Pro wallet balance.</p>
+          <h1 style={{ fontSize: 32, fontWeight: 300, margin: "0 0 8px" }}>
+            {planName ? `Fund ${planName} Plan` : "Deposit Funds"}
+          </h1>
+          <p style={{ color: "#8b95a1", fontSize: 14 }}>
+            {planName
+              ? `Complete your deposit to activate the ${planName} investment plan.`
+              : "Add funds to your Tesla Pro wallet balance."}
+          </p>
         </div>
 
         {/* Balance */}
@@ -68,7 +73,7 @@ export default function DepositPage() {
           <div>
             <div style={{ fontSize: 11, color: "#8b95a1", letterSpacing: "0.1em" }}>CURRENT BALANCE</div>
             <div style={{ fontSize: 28, fontWeight: 700, color: "#22c55e", marginTop: 4 }}>
-              ${user?.balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              ${(user?.balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
             </div>
           </div>
           <div style={{ fontSize: 32 }}>💰</div>
@@ -77,20 +82,30 @@ export default function DepositPage() {
         {done ? (
           <div style={{ textAlign: "center", padding: "48px 0" }}>
             <div style={{ fontSize: 56, marginBottom: 16 }}>✅</div>
-            <h2 style={{ fontSize: 22, fontWeight: 400, color: "#e8eaec", marginBottom: 12 }}>Deposit Request Submitted</h2>
-            <p style={{ color: "#8b95a1", fontSize: 14, lineHeight: 1.7, marginBottom: 8 }}>
-              Your deposit of <strong style={{ color: "#e8eaec" }}>${Number(amount).toLocaleString()}</strong> via {BANKS.find(b => b.id === method)?.label} is under review.
+            <h2 style={{ fontSize: 22, fontWeight: 400, color: "#e8eaec", marginBottom: 12 }}>Deposit Submitted</h2>
+            <p style={{ color: "#8b95a1", fontSize: 14, lineHeight: 1.8, marginBottom: 28, maxWidth: 380, margin: "0 auto 28px" }}>
+              {confirmationNote[method]}
             </p>
-            <p style={{ color: "#8b95a1", fontSize: 13, lineHeight: 1.7, marginBottom: 28 }}>
-              {methodInfo[method].detail}<br />
-              <span style={{ color: "#e8eaec", fontFamily: "monospace" }}>{methodInfo[method].ref}</span>
-            </p>
-            <button onClick={() => { setDone(false); setAmount(""); setStep(1); }} style={{ padding: "12px 28px", background: "#e31937", border: "none", color: "#fff", borderRadius: 4, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+            <button
+              onClick={() => { setDone(false); setAmount(planAmount ?? ""); }}
+              style={{ padding: "12px 28px", background: "#e31937", border: "none", color: "#fff", borderRadius: 4, fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+            >
               Make Another Deposit
             </button>
           </div>
         ) : (
           <>
+            {/* Plan badge */}
+            {planName && (
+              <div style={{ background: "rgba(227,25,55,0.08)", border: "1px solid rgba(227,25,55,0.25)", borderRadius: 8, padding: "12px 16px", marginBottom: 24, display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 16 }}>📈</span>
+                <div>
+                  <div style={{ fontSize: 12, color: "#e31937", fontWeight: 600, letterSpacing: "0.05em" }}>INVESTMENT PLAN</div>
+                  <div style={{ fontSize: 14, color: "#e8eaec" }}>{planName} — ${Number(planAmount).toLocaleString()} recommended</div>
+                </div>
+              </div>
+            )}
+
             {/* Amount */}
             <div style={{ marginBottom: 24 }}>
               <div style={{ fontSize: 12, color: "#8b95a1", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>Amount (USD)</div>
@@ -118,24 +133,20 @@ export default function DepositPage() {
             <div style={{ marginBottom: 28 }}>
               <div style={{ fontSize: 12, color: "#8b95a1", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>Payment Method</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {BANKS.map(b => (
-                  <label key={b.id} onClick={() => setMethod(b.id)} style={{
+                {METHODS.map(m => (
+                  <label key={m.id} onClick={() => setMethod(m.id)} style={{
                     display: "flex", alignItems: "center", gap: 14, padding: "14px 16px",
-                    background: method === b.id ? "#0d1a2e" : "#0a0f18",
-                    border: `1px solid ${method === b.id ? "#1e3a5f" : "#1a2332"}`,
+                    background: method === m.id ? "#0d1a2e" : "#0a0f18",
+                    border: `1px solid ${method === m.id ? "#1e3a5f" : "#1a2332"}`,
                     borderRadius: 8, cursor: "pointer",
                   }}>
-                    <div style={{ fontSize: 22 }}>{b.icon}</div>
+                    <div style={{ fontSize: 22 }}>{m.icon}</div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 14, color: "#e8eaec", fontWeight: 500 }}>{b.label}</div>
-                      <div style={{ fontSize: 12, color: "#8b95a1" }}>{b.sub}</div>
+                      <div style={{ fontSize: 14, color: "#e8eaec", fontWeight: 500 }}>{m.label}</div>
+                      <div style={{ fontSize: 12, color: "#8b95a1" }}>{m.sub}</div>
                     </div>
-                    <div style={{
-                      width: 18, height: 18, borderRadius: "50%",
-                      border: `2px solid ${method === b.id ? "#e31937" : "#2e3843"}`,
-                      display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                    }}>
-                      {method === b.id && <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#e31937" }} />}
+                    <div style={{ width: 18, height: 18, borderRadius: "50%", border: `2px solid ${method === m.id ? "#e31937" : "#2e3843"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      {method === m.id && <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#e31937" }} />}
                     </div>
                   </label>
                 ))}
