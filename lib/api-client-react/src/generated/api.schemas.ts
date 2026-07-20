@@ -51,12 +51,14 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
+  phone?: string | null;
   role: UserRole;
   status: UserStatus;
   balance: number;
   rewardPoints: number;
   referralCount: number;
   memberCode: string;
+  mustChangePassword?: boolean;
   createdAt: string;
 }
 
@@ -97,6 +99,8 @@ export const OrderType = {
   giveaway: 'giveaway',
   digital: 'digital',
   investment: 'investment',
+  deposit: 'deposit',
+  withdrawal: 'withdrawal',
 } as const;
 
 export type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
@@ -108,6 +112,8 @@ export const OrderStatus = {
   processing: 'processing',
   delivered: 'delivered',
   cancelled: 'cancelled',
+  approved: 'approved',
+  rejected: 'rejected',
 } as const;
 
 export interface Order {
@@ -130,6 +136,8 @@ export const CreateOrderRequestType = {
   giveaway: 'giveaway',
   digital: 'digital',
   investment: 'investment',
+  deposit: 'deposit',
+  withdrawal: 'withdrawal',
 } as const;
 
 export interface CreateOrderRequest {
