@@ -32,7 +32,11 @@ export default function LoginPage() {
       onSuccess: (res) => {
         if (res.token) {
           setToken(res.token);
-          setLocation("/dashboard");
+          if (res.user?.mustChangePassword) {
+            setLocation("/change-password");
+          } else {
+            setLocation("/dashboard");
+          }
         }
       },
       onError: (err: any) => {

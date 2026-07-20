@@ -27,6 +27,11 @@ function toPublicUser(u: typeof usersTable.$inferSelect) {
   return pub;
 }
 
+function toLoginUser(u: typeof usersTable.$inferSelect) {
+  const { passwordHash: _, mustChangePassword, ...rest } = u;
+  return { ...rest, mustChangePassword: mustChangePassword ?? false };
+}
+
 router.post("/auth/login", async (req, res): Promise<void> => {
   const parsed = LoginBody.safeParse(req.body);
   if (!parsed.success) {
@@ -55,7 +60,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
 
   const token = makeToken(user.id);
   req.log.info({ userId: user.id }, "User logged in");
-  res.json({ user: toPublicUser(user), token });
+  res.json({ user: toLoginUser(user), token });
 });
 
 router.post("/auth/register", async (req, res): Promise<void> => {
@@ -127,6 +132,42 @@ router.get("/auth/me", async (req, res): Promise<void> => {
 
 router.post("/auth/logout", async (_req, res): Promise<void> => {
   res.json({ message: "Logged out successfully" });
+});
+
+router.post("/auth/change-password", async (req, res): Promise<void> => {
+  const auth = req.headers.authorization;
+  if (!auth?.startsWith("Bearer ")) {
+    res.status(401).json({ message: "Not authenticated" });
+    return;
+  }
+
+  let payload: { sub: string };
+  try {
+    payload = jwt.verify(auth.slice(7), JWT_SECRET) as { sub: string };
+  } catch {
+    res.status(401).json({ message: "Invalid or expired token" });
+    return;
+  }
+
+  const { newPassword } = req.body ?? {};
+  if (!newPassword || typeof newPassword !== "string" || newPassword.length < 8) {
+    res.status(400).json({ message: "Password must be at least 8 characters" });
+    return;
+  }
+
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, payload.sub));
+  if (!user) {
+    res.status(404).json({ message: "User not found" });
+    return;
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+  await db.update(usersTable)
+    .set({ passwordHash, mustChangePassword: false })
+    .where(eq(usersTable.id, user.id));
+
+  req.log.info({ userId: user.id }, "Password changed");
+  res.json({ message: "Password updated successfully" });
 });
 
 export { JWT_SECRET };

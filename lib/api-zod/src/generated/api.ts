@@ -37,6 +37,7 @@ export const LoginResponse = zod.object({
   "rewardPoints": zod.number(),
   "referralCount": zod.number(),
   "memberCode": zod.string(),
+  "mustChangePassword": zod.boolean().optional(),
   "createdAt": zod.coerce.date()
 }),
   "token": zod.string()
