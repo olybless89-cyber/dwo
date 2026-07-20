@@ -3,12 +3,35 @@ import { AppLayout } from "@/components/AppLayout";
 import { useGetMe, useCreateOrder } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 
+const USDT_WALLET = "TNCgyc7SYM7LFHhSaCBcP1ehPEfPw2fpTa";
+
 const AMOUNTS = [500, 1000, 2500, 5000, 10000, 25000];
 const METHODS = [
   { id: "wire",   label: "Wire Transfer",     icon: "🏦", sub: "International / SWIFT — 1–3 business days" },
   { id: "crypto", label: "USDT (TRC-20)",      icon: "💎", sub: "Tether stablecoin — instant confirmation" },
   { id: "card",   label: "Debit/Credit Card", icon: "💳", sub: "Visa, Mastercard — instant" },
 ];
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  return (
+    <button onClick={copy} style={{
+      padding: "6px 14px", background: copied ? "#22c55e" : "#1a2332",
+      border: `1px solid ${copied ? "#22c55e" : "#2e3843"}`,
+      color: copied ? "#fff" : "#8b95a1", borderRadius: 4,
+      fontSize: 12, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0,
+      transition: "all 0.2s",
+    }}>
+      {copied ? "Copied ✓" : "Copy"}
+    </button>
+  );
+}
 
 function getParams() {
   const p = new URLSearchParams(window.location.search);
@@ -25,7 +48,6 @@ export default function DepositPage() {
   const [method, setMethod] = useState("wire");
   const [done, setDone] = useState(false);
 
-  // If navigated here from invest page, keep amount in sync on first load
   useEffect(() => {
     if (planAmount) setAmount(planAmount);
   }, [planAmount]);
@@ -43,12 +65,6 @@ export default function DepositPage() {
       onSuccess: () => setDone(true),
       onError: (err: any) => toast({ title: "Failed", description: err.message, variant: "destructive" }),
     });
-  };
-
-  const confirmationNote: Record<string, string> = {
-    wire:   `Send the exact amount to our bank account and include your member code (${user?.memberCode ?? "TP-XXXX-XXXX"}) in the reference field. You'll receive bank details by email shortly.`,
-    crypto: `Send USDT on the TRON (TRC-20) network only. Our wallet address will be confirmed to you by email — do not send before receiving it.`,
-    card:   `A secure payment link will be emailed to ${user?.email ?? "your email"} shortly. Do not share the link with anyone.`,
   };
 
   return (
@@ -80,18 +96,66 @@ export default function DepositPage() {
         </div>
 
         {done ? (
-          <div style={{ textAlign: "center", padding: "48px 0" }}>
-            <div style={{ fontSize: 56, marginBottom: 16 }}>✅</div>
-            <h2 style={{ fontSize: 22, fontWeight: 400, color: "#e8eaec", marginBottom: 12 }}>Deposit Submitted</h2>
-            <p style={{ color: "#8b95a1", fontSize: 14, lineHeight: 1.8, marginBottom: 28, maxWidth: 380, margin: "0 auto 28px" }}>
-              {confirmationNote[method]}
-            </p>
-            <button
-              onClick={() => { setDone(false); setAmount(planAmount ?? ""); }}
-              style={{ padding: "12px 28px", background: "#e31937", border: "none", color: "#fff", borderRadius: 4, fontSize: 13, fontWeight: 700, cursor: "pointer" }}
-            >
-              Make Another Deposit
-            </button>
+          /* ── Confirmation screen ── */
+          <div style={{ padding: "12px 0 48px" }}>
+            <div style={{ textAlign: "center", marginBottom: 28 }}>
+              <div style={{ fontSize: 56, marginBottom: 16 }}>✅</div>
+              <h2 style={{ fontSize: 22, fontWeight: 400, color: "#e8eaec", marginBottom: 8 }}>Deposit Submitted</h2>
+              <p style={{ color: "#8b95a1", fontSize: 14 }}>
+                Your <strong style={{ color: "#e8eaec" }}>${Number(amount).toLocaleString()}</strong> deposit is under review.
+              </p>
+            </div>
+
+            {/* Method-specific instructions */}
+            <div style={{ background: "#0d1520", border: "1px solid #1a2332", borderRadius: 10, padding: "20px 24px", marginBottom: 28 }}>
+              {method === "crypto" && (
+                <>
+                  <div style={{ fontSize: 12, color: "#8b95a1", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14 }}>Send USDT to this address</div>
+                  <div style={{ background: "#060c14", border: "1px solid #1a2332", borderRadius: 8, padding: "14px 16px", marginBottom: 12 }}>
+                    <div style={{ fontSize: 11, color: "#8b95a1", marginBottom: 6 }}>Network: TRON (TRC-20) only</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                      <code style={{ fontSize: 13, color: "#e8eaec", wordBreak: "break-all", flex: 1 }}>{USDT_WALLET}</code>
+                      <CopyButton text={USDT_WALLET} />
+                    </div>
+                  </div>
+                  <p style={{ color: "#8b95a1", fontSize: 13, lineHeight: 1.7, margin: 0 }}>
+                    Send <strong style={{ color: "#e8eaec" }}>${Number(amount).toLocaleString()} USDT</strong> on the TRC-20 network only. Do <strong style={{ color: "#e31937" }}>not</strong> use ERC-20 or BEP-20 — funds sent on the wrong network cannot be recovered. Once sent, your balance will be updated after confirmation.
+                  </p>
+                </>
+              )}
+              {method === "wire" && (
+                <>
+                  <div style={{ fontSize: 12, color: "#8b95a1", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14 }}>Wire Transfer Instructions</div>
+                  <p style={{ color: "#8b95a1", fontSize: 13, lineHeight: 1.7, margin: "0 0 12px" }}>
+                    Bank details will be sent to <strong style={{ color: "#e8eaec" }}>{user?.email}</strong> shortly. Include your member code as the payment reference.
+                  </p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 11, color: "#8b95a1", marginBottom: 4 }}>YOUR REFERENCE</div>
+                      <code style={{ fontSize: 14, color: "#e8eaec" }}>{user?.memberCode ?? "TP-XXXX-XXXX"}</code>
+                    </div>
+                    <CopyButton text={user?.memberCode ?? ""} />
+                  </div>
+                </>
+              )}
+              {method === "card" && (
+                <>
+                  <div style={{ fontSize: 12, color: "#8b95a1", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14 }}>Secure Payment Link</div>
+                  <p style={{ color: "#8b95a1", fontSize: 13, lineHeight: 1.7, margin: 0 }}>
+                    A secure payment link will be sent to <strong style={{ color: "#e8eaec" }}>{user?.email}</strong> shortly. Do not share the link with anyone.
+                  </p>
+                </>
+              )}
+            </div>
+
+            <div style={{ textAlign: "center" }}>
+              <button
+                onClick={() => { setDone(false); setAmount(planAmount ?? ""); }}
+                style={{ padding: "12px 28px", background: "#e31937", border: "none", color: "#fff", borderRadius: 4, fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+              >
+                Make Another Deposit
+              </button>
+            </div>
           </div>
         ) : (
           <>
@@ -130,7 +194,7 @@ export default function DepositPage() {
             </div>
 
             {/* Method */}
-            <div style={{ marginBottom: 28 }}>
+            <div style={{ marginBottom: method === "crypto" ? 16 : 28 }}>
               <div style={{ fontSize: 12, color: "#8b95a1", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>Payment Method</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {METHODS.map(m => (
@@ -152,6 +216,17 @@ export default function DepositPage() {
                 ))}
               </div>
             </div>
+
+            {/* Inline USDT wallet when crypto selected */}
+            {method === "crypto" && (
+              <div style={{ background: "#060c14", border: "1px solid #1a2332", borderRadius: 8, padding: "14px 16px", marginBottom: 28 }}>
+                <div style={{ fontSize: 11, color: "#8b95a1", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 8 }}>Send to this TRC-20 wallet</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                  <code style={{ fontSize: 12, color: "#e8eaec", wordBreak: "break-all", flex: 1 }}>{USDT_WALLET}</code>
+                  <CopyButton text={USDT_WALLET} />
+                </div>
+              </div>
+            )}
 
             <button
               onClick={handleSubmit}
