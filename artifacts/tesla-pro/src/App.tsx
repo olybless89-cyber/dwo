@@ -18,6 +18,9 @@ import AdminUsers from '@/pages/admin/Users';
 import AdminOrders from '@/pages/admin/Orders';
 import AdminTransactions from '@/pages/admin/Transactions';
 import ChangePasswordPage from '@/pages/ChangePassword';
+import OrdersPage from '@/pages/Orders';
+import GiveawayEntriesPage from '@/pages/GiveawayEntries';
+import DigitalAssetsPage from '@/pages/DigitalAssets';
 
 const queryClient = new QueryClient();
 
@@ -33,6 +36,9 @@ function Router() {
       <Route path="/withdraw" component={WithdrawPage} />
       <Route path="/transactions" component={TransactionsPage} />
       <Route path="/change-password" component={ChangePasswordPage} />
+      <Route path="/orders" component={OrdersPage} />
+      <Route path="/entries" component={GiveawayEntriesPage} />
+      <Route path="/assets" component={DigitalAssetsPage} />
       {/* Admin */}
       <Route path="/admin/overview" component={AdminOverview} />
       <Route path="/admin/users" component={AdminUsers} />
