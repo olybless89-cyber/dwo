@@ -1,6 +1,6 @@
-import { useListOrders, useCreateOrder, useGetMe } from "@workspace/api-client-react";
+import { useListOrders, useGetMe } from "@workspace/api-client-react";
 import { AppLayout } from "@/components/AppLayout";
-import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 const ASSETS = [
   {
@@ -83,25 +83,15 @@ const BADGE_COLOR: Record<string, string> = {
 export default function DigitalAssetsPage() {
   const { data: user } = useGetMe();
   const { data: orders, isLoading } = useListOrders();
-  const createOrder = useCreateOrder();
-  const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   const myAssets = (orders ?? [])
     .filter(o => o.type === "digital")
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const handlePurchase = (asset: typeof ASSETS[0]) => {
-    if (!user) return;
-    createOrder.mutate({
-      data: {
-        type: "digital",
-        description: `Digital Asset — ${asset.name}`,
-        amount: asset.price,
-      }
-    }, {
-      onSuccess: () => toast({ title: "Order placed!", description: `${asset.name} order submitted. You'll receive access details via email.` }),
-      onError: (err: any) => toast({ title: "Failed", description: err.message, variant: "destructive" }),
-    });
+    if (!user) { setLocation("/login"); return; }
+    setLocation(`/deposit?plan=${encodeURIComponent(`Digital Asset — ${asset.name}`)}&amount=${asset.price}`);
   };
 
   return (
@@ -141,8 +131,7 @@ export default function DigitalAssetsPage() {
                 </div>
                 <button
                   onClick={() => handlePurchase(asset)}
-                  disabled={createOrder.isPending}
-                  style={{ width: "100%", padding: "11px 0", background: "#e31937", border: "none", color: "#fff", borderRadius: 4, fontSize: 13, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", opacity: createOrder.isPending ? 0.7 : 1 }}
+                  style={{ width: "100%", padding: "11px 0", background: "#e31937", border: "none", color: "#fff", borderRadius: 4, fontSize: 13, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer" }}
                 >
                   Purchase
                 </button>

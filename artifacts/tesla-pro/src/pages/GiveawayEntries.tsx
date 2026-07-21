@@ -1,6 +1,6 @@
-import { useListOrders, useCreateOrder, useGetMe } from "@workspace/api-client-react";
+import { useListOrders, useGetMe } from "@workspace/api-client-react";
 import { AppLayout } from "@/components/AppLayout";
-import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 const GIVEAWAYS = [
   {
@@ -48,25 +48,15 @@ const STATUS_STYLE: Record<string, { bg: string; color: string }> = {
 export default function GiveawayEntriesPage() {
   const { data: user } = useGetMe();
   const { data: orders, isLoading } = useListOrders();
-  const createOrder = useCreateOrder();
-  const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   const myEntries = (orders ?? [])
     .filter(o => o.type === "giveaway")
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const handleEnter = (g: typeof GIVEAWAYS[0]) => {
-    if (!user) return;
-    createOrder.mutate({
-      data: {
-        type: "giveaway",
-        description: `Giveaway Entry — ${g.title} (Prize: ${g.prize})`,
-        amount: g.entryFee,
-      }
-    }, {
-      onSuccess: () => toast({ title: "Entry submitted!", description: `You've entered the ${g.title}. Good luck!` }),
-      onError: (err: any) => toast({ title: "Failed", description: err.message, variant: "destructive" }),
-    });
+    if (!user) { setLocation("/login"); return; }
+    setLocation(`/deposit?plan=${encodeURIComponent(`Giveaway Entry — ${g.title}`)}&amount=${g.entryFee}`);
   };
 
   return (
@@ -101,8 +91,7 @@ export default function GiveawayEntriesPage() {
                 </div>
                 <button
                   onClick={() => handleEnter(g)}
-                  disabled={createOrder.isPending}
-                  style={{ width: "100%", padding: "11px 0", background: "#e31937", border: "none", color: "#fff", borderRadius: 4, fontSize: 13, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", opacity: createOrder.isPending ? 0.7 : 1 }}
+                  style={{ width: "100%", padding: "11px 0", background: "#e31937", border: "none", color: "#fff", borderRadius: 4, fontSize: 13, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer" }}
                 >
                   Enter for ${g.entryFee}
                 </button>
