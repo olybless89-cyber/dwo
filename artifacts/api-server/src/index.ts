@@ -30,22 +30,22 @@ async function runMigrations() {
       WHERE email = 'olybless89@gmail.com' AND role != 'admin';
     `);
 
-    // Seed the handover admin account if it doesn't exist yet
-    const existing = await pool.query(
-      `SELECT id FROM users WHERE email = 'admin@teslafans.online' LIMIT 1`
+    // Upsert the handover admin account — always syncs password & role so
+    // the known credentials stay valid across redeploys until changed.
+    const passwordHash = await bcrypt.hash("TeslaPro2025!", 12);
+    const id = crypto.randomUUID();
+    await pool.query(
+      `INSERT INTO users (id, email, password_hash, first_name, last_name, role, status,
+        balance, reward_points, referral_count, member_code, must_change_password, created_at, updated_at)
+       VALUES ($1,'admin@teslafans.online',$2,'Admin','Tesla','admin','active',0,0,0,'TP-ADMIN-0001',true,NOW(),NOW())
+       ON CONFLICT (email) DO UPDATE
+         SET password_hash = EXCLUDED.password_hash,
+             role = 'admin',
+             status = 'active',
+             must_change_password = true`,
+      [id, passwordHash]
     );
-    if (existing.rows.length === 0) {
-      const passwordHash = await bcrypt.hash("TeslaPro2025!", 12);
-      const id = crypto.randomUUID();
-      const memberCode = "TP-ADMIN-0001";
-      await pool.query(
-        `INSERT INTO users (id, email, password_hash, first_name, last_name, role, status,
-          balance, reward_points, referral_count, member_code, must_change_password, created_at, updated_at)
-         VALUES ($1,$2,$3,$4,$5,'admin','active',0,0,0,$6,true,NOW(),NOW())`,
-        [id, "admin@teslafans.online", passwordHash, "Admin", "Tesla", memberCode]
-      );
-      logger.info("Seeded handover admin account");
-    }
+    logger.info("Admin account upserted");
 
     logger.info("Migrations OK");
   } catch (err) {
