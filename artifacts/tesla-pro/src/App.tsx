@@ -1,5 +1,6 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, MutationCache } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
+import { toast } from '@/hooks/use-toast';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import { Route, Switch, Router as WouterRouter, Redirect } from 'wouter';
@@ -22,7 +23,22 @@ import OrdersPage from '@/pages/Orders';
 import GiveawayEntriesPage from '@/pages/GiveawayEntries';
 import DigitalAssetsPage from '@/pages/DigitalAssets';
 
-const queryClient = new QueryClient();
+// Global safety net: any mutation whose page doesn't already have its own
+// onError handler (or whose handler fails to surface the real message —
+// several pages here were reading err.response?.data?.message, an
+// axios-style shape this app's fetch client doesn't use, so real errors
+// were silently swallowed) now falls back to a visible toast automatically.
+const queryClient = new QueryClient({
+  mutationCache: new MutationCache({
+    onError: (error: any) => {
+      toast({
+        variant: 'destructive',
+        title: 'Action failed',
+        description: error?.data?.message || error?.message || 'Something went wrong. Please try again.',
+      });
+    },
+  }),
+});
 
 function Router() {
   return (

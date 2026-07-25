@@ -39,9 +39,14 @@ export default function RegisterPage() {
         }
       },
       onError: (err: any) => {
+        // This app's fetch client (custom-fetch.ts ApiError) puts the parsed
+        // error body on `err.data` and a formatted message on `err.message`
+        // directly — there is no axios-style `err.response.data`, so that
+        // lookup was always undefined and silently fell through to the
+        // generic fallback below regardless of the real failure.
         toast({
           title: "Registration failed",
-          description: err.response?.data?.message || "An error occurred. Please try again.",
+          description: err?.data?.message || err?.message || "An error occurred. Please try again.",
           variant: "destructive"
         });
       }

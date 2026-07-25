@@ -58,7 +58,7 @@ export default function AdminUsers() {
         setEditingUser(null);
       },
       onError: (err: any) => {
-        toast({ title: "Update Failed", description: err.response?.data?.message, variant: "destructive" });
+        toast({ title: "Update Failed", description: err?.data?.message || err?.message, variant: "destructive" });
       }
     });
   };

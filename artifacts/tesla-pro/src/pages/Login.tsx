@@ -42,7 +42,7 @@ export default function LoginPage() {
       onError: (err: any) => {
         toast({
           title: "Login failed",
-          description: err.response?.data?.message || "Invalid credentials. Please try again.",
+          description: err?.data?.message || err?.message || "Invalid credentials. Please try again.",
           variant: "destructive"
         });
       }
