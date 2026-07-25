@@ -19,4 +19,21 @@ router.get("/healthz/db", async (_req, res): Promise<void> => {
   }
 });
 
+// Read-only schema introspection — shows exactly what columns exist on the
+// live `users` table so we can compare against lib/db/src/schema/users.ts
+// without needing any DB credentials. Remove once the drift is resolved.
+router.get("/healthz/schema", async (_req, res): Promise<void> => {
+  try {
+    const result = await pool.query(
+      `SELECT column_name, data_type, is_nullable, column_default
+       FROM information_schema.columns
+       WHERE table_schema = 'public' AND table_name = 'users'
+       ORDER BY ordinal_position`
+    );
+    res.json({ db: "ok", table: "users", columns: result.rows });
+  } catch (err: any) {
+    res.status(500).json({ db: "error", message: err.message, code: err.code });
+  }
+});
+
 export default router;
