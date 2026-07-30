@@ -23,7 +23,7 @@ import { Mail, Mail, Mail,
   Menu,
   X,
 } from "lucide-react";
-import { Mail, Mail, Mail, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface LayoutProps {
   children: ReactNode;
