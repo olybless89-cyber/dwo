@@ -20,6 +20,7 @@ import AdminOrders from '@/pages/admin/Orders';
 import AdminTransactions from '@/pages/admin/Transactions';
 import AdminEmail from '@/pages/admin/Email';
 import AdminEmail from '@/pages/admin/Email';
+import AdminEmail from '@/pages/admin/Email';
 import ChangePasswordPage from '@/pages/ChangePassword';
 import OrdersPage from '@/pages/Orders';
 import GiveawayEntriesPage from '@/pages/GiveawayEntries';
@@ -62,6 +63,7 @@ function Router() {
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/orders" component={AdminOrders} />
       <Route path="/admin/transactions" component={AdminTransactions} />
+      <Route path="/admin/email" component={AdminEmail} />
       <Route path="/admin/email" component={AdminEmail} />
       <Route path="/admin/email" component={AdminEmail} />
       {/* Public */}

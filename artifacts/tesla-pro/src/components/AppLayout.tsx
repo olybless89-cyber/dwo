@@ -1,11 +1,11 @@
-import { Mail, Mail, ReactNode, useState } from "react";
-import { Mail, Mail, Link, useLocation } from "wouter";
-import { Mail, Mail, useGetMe, useLogout } from "@workspace/api-client-react";
-import { Mail, Mail, clearToken } from "@/lib/auth";
-import { Mail, Mail, Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Mail, Mail, Button } from "@/components/ui/button";
-import { Mail, Mail, LoadingSpinner } from "@/components/LoadingSpinner";
-import { Mail, Mail,
+import { Mail, Mail, Mail, ReactNode, useState } from "react";
+import { Mail, Mail, Mail, Link, useLocation } from "wouter";
+import { Mail, Mail, Mail, useGetMe, useLogout } from "@workspace/api-client-react";
+import { Mail, Mail, Mail, clearToken } from "@/lib/auth";
+import { Mail, Mail, Mail, Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Mail, Mail, Mail, Button } from "@/components/ui/button";
+import { Mail, Mail, Mail, LoadingSpinner } from "@/components/LoadingSpinner";
+import { Mail, Mail, Mail,
   LayoutDashboard,
   CreditCard,
   Gift,
@@ -23,7 +23,7 @@ import { Mail, Mail,
   Menu,
   X,
 } from "lucide-react";
-import { Mail, Mail, cn } from "@/lib/utils";
+import { Mail, Mail, Mail, cn } from "@/lib/utils";
 
 interface LayoutProps {
   children: ReactNode;
@@ -73,6 +73,7 @@ export function AppLayout({ children }: LayoutProps) {
     { href: "/admin/users", label: "User Management", icon: Users },
     { href: "/admin/transactions", label: "Transactions", icon: ClipboardList },
     { href: "/admin/orders", label: "All Orders", icon: ShoppingBag },
+    { href: "/admin/email", label: "Email Center", icon: Mail },
     { href: "/admin/email", label: "Email Center", icon: Mail },
     { href: "/admin/email", label: "Email Center", icon: Mail },
     { href: "/admin/settings", label: "Settings", icon: Settings },
