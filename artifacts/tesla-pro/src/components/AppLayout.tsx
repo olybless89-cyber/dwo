@@ -1,11 +1,11 @@
-import { ReactNode, useState } from "react";
-import { Link, useLocation } from "wouter";
-import { useGetMe, useLogout } from "@workspace/api-client-react";
-import { clearToken } from "@/lib/auth";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
-import {
+import { Mail, ReactNode, useState } from "react";
+import { Mail, Link, useLocation } from "wouter";
+import { Mail, useGetMe, useLogout } from "@workspace/api-client-react";
+import { Mail, clearToken } from "@/lib/auth";
+import { Mail, Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Mail, Button } from "@/components/ui/button";
+import { Mail, LoadingSpinner } from "@/components/LoadingSpinner";
+import { Mail,
   LayoutDashboard,
   CreditCard,
   Gift,
@@ -23,7 +23,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Mail, cn } from "@/lib/utils";
 
 interface LayoutProps {
   children: ReactNode;
@@ -73,6 +73,7 @@ export function AppLayout({ children }: LayoutProps) {
     { href: "/admin/users", label: "User Management", icon: Users },
     { href: "/admin/transactions", label: "Transactions", icon: ClipboardList },
     { href: "/admin/orders", label: "All Orders", icon: ShoppingBag },
+    { href: "/admin/email", label: "Email Center", icon: Mail },
     { href: "/admin/settings", label: "Settings", icon: Settings },
   ];
 
