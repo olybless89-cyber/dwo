@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: teslafans-api
+    env: docker
+    region: oregon
+    plan: free
+    dockerfilePath: ./artifacts/api-server/Dockerfile
+    healthCheckPath: /api/healthz
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        value: "Tesla Pro <onboarding@resend.dev>"
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8080

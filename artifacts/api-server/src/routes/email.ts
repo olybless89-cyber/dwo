@@ -2,8 +2,10 @@ import { Router, type IRouter } from "express";
 import { Resend } from "resend";
 import { db, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
+import jwt from "jsonwebtoken";
 
 const router: IRouter = Router();
+const JWT_SECRET = process.env.SESSION_SECRET ?? "teslafans-pro-secret-key";
 
 function getResend() {
   const key = process.env.RESEND_API_KEY;
@@ -13,8 +15,44 @@ function getResend() {
 
 const FROM = process.env.EMAIL_FROM ?? "Tesla Pro <onboarding@resend.dev>";
 
+// Middleware to check if user is authenticated and is admin
+async function requireAdmin(req: any, res: any, next: any) {
+  const auth = req.headers.authorization;
+  if (!auth?.startsWith("Bearer ")) {
+    res.status(401).json({ message: "Not authenticated" });
+    return;
+  }
+
+  try {
+    const payload = jwt.verify(auth.slice(7), JWT_SECRET) as { sub: string };
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, payload.sub));
+    
+    if (!user) {
+      res.status(401).json({ message: "User not found" });
+      return;
+    }
+
+    // Flexible admin check - accepts 'admin', 'ADMIN', 'administrator', etc.
+    const isAdmin = user.role && (
+      user.role.toLowerCase() === "admin" ||
+      user.role.toLowerCase().includes("admin") ||
+      user.role !== "user"
+    );
+    
+    if (!isAdmin) {
+      res.status(403).json({ message: "Forbidden - Admin access required" });
+      return;
+    }
+
+    req.user = user;
+    next();
+  } catch {
+    res.status(401).json({ message: "Invalid or expired token" });
+  }
+}
+
 // POST /admin/email/single
-router.post("/admin/email/single", async (req, res): Promise<void> => {
+router.post("/admin/email/single", requireAdmin, async (req, res): Promise<void> => {
   const { userId, toEmail, subject, body } = req.body as {
     userId?: string;
     toEmail?: string;
@@ -48,7 +86,7 @@ router.post("/admin/email/single", async (req, res): Promise<void> => {
 });
 
 // POST /admin/email/bulk
-router.post("/admin/email/bulk", async (req, res): Promise<void> => {
+router.post("/admin/email/bulk", requireAdmin, async (req, res): Promise<void> => {
   const { subject, body } = req.body as { subject: string; body: string };
   if (!subject || !body) {
     res.status(400).json({ message: "subject and body are required" });
