@@ -22,6 +22,7 @@ import { Mail, Mail, Mail,
   Car,
   Menu,
   X,
+  Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -73,9 +74,7 @@ export function AppLayout({ children }: LayoutProps) {
     { href: "/admin/users", label: "User Management", icon: Users },
     { href: "/admin/transactions", label: "Transactions", icon: ClipboardList },
     { href: "/admin/orders", label: "All Orders", icon: ShoppingBag },
-    { href: "/admin/email", label: "Email Center", icon: Mail },
-    { href: "/admin/email", label: "Email Center", icon: Mail },
-    { href: "/admin/email", label: "Email Center", icon: Mail },
+    { href: "/admin/messages", label: "Messages", icon: Mail },
     { href: "/admin/settings", label: "Settings", icon: Settings },
   ];
 

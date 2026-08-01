@@ -18,9 +18,7 @@ import AdminOverview from '@/pages/admin/Overview';
 import AdminUsers from '@/pages/admin/Users';
 import AdminOrders from '@/pages/admin/Orders';
 import AdminTransactions from '@/pages/admin/Transactions';
-import AdminEmail from '@/pages/admin/Email';
-import AdminEmail from '@/pages/admin/Email';
-import AdminEmail from '@/pages/admin/Email';
+import AdminMessages from '@/pages/admin/Messages';
 import ChangePasswordPage from '@/pages/ChangePassword';
 import OrdersPage from '@/pages/Orders';
 import GiveawayEntriesPage from '@/pages/GiveawayEntries';
@@ -63,9 +61,7 @@ function Router() {
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/orders" component={AdminOrders} />
       <Route path="/admin/transactions" component={AdminTransactions} />
-      <Route path="/admin/email" component={AdminEmail} />
-      <Route path="/admin/email" component={AdminEmail} />
-      <Route path="/admin/email" component={AdminEmail} />
+      <Route path="/admin/messages" component={AdminMessages} />
       {/* Public */}
       <Route path="/" component={LandingPage} />
       <Route component={NotFound} />

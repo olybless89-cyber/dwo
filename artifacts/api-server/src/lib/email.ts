@@ -9,7 +9,89 @@ function getResend() {
   return new Resend(key);
 }
 
-const FROM = "Tesla Pro <onboarding@resend.dev>";
+const FROM = process.env.EMAIL_FROM ?? "Tesla Pro <onboarding@resend.dev>";
+
+// ── Admin messaging helpers ──────────────────────────────────────────────────
+
+/**
+ * Send a single custom email from admin to one user.
+ * Returns true on success, false on failure.
+ */
+export async function sendAdminEmail(opts: {
+  to: string;
+  subject: string;
+  body: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) return { ok: false, error: "RESEND_API_KEY not configured" };
+  try {
+    await resend.emails.send({
+      from: FROM,
+      to: opts.to,
+      subject: opts.subject,
+      html: buildAdminHtml(opts.subject, opts.body),
+    });
+    return { ok: true };
+  } catch (err: any) {
+    return { ok: false, error: err?.message ?? String(err) };
+  }
+}
+
+/**
+ * Send the same custom email to multiple recipients.
+ * Returns counts of successes and failures.
+ */
+export async function sendAdminBulkEmail(opts: {
+  recipients: { email: string }[];
+  subject: string;
+  body: string;
+}): Promise<{ sent: number; failed: number; error?: string }> {
+  const resend = getResend();
+  if (!resend) return { sent: 0, failed: opts.recipients.length, error: "RESEND_API_KEY not configured" };
+
+  let sent = 0;
+  let failed = 0;
+  const html = buildAdminHtml(opts.subject, opts.body);
+
+  // Send in batches of 50 to avoid rate limits
+  const BATCH = 50;
+  for (let i = 0; i < opts.recipients.length; i += BATCH) {
+    const batch = opts.recipients.slice(i, i + BATCH);
+    await Promise.all(
+      batch.map(async (r) => {
+        try {
+          await resend.emails.send({ from: FROM, to: r.email, subject: opts.subject, html });
+          sent++;
+        } catch {
+          failed++;
+        }
+      }),
+    );
+  }
+  return { sent, failed };
+}
+
+function buildAdminHtml(subject: string, body: string): string {
+  // Convert newlines to <br> so plain-text bodies render correctly
+  const htmlBody = body
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\n/g, "<br>");
+
+  return `
+    <div style="font-family:Inter,sans-serif;background:#0a0f1a;color:#e8eaec;max-width:560px;margin:0 auto;padding:40px 32px;border-radius:12px;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <span style="font-size:22px;font-weight:700;letter-spacing:4px;color:#fff;">TESLA PRO</span>
+      </div>
+      <h1 style="font-size:20px;font-weight:700;color:#fff;margin:0 0 20px;">${subject.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</h1>
+      <div style="color:#c8d4e0;line-height:1.75;font-size:15px;">${htmlBody}</div>
+      <p style="color:#3a4552;font-size:12px;margin-top:40px;border-top:1px solid #1a2332;padding-top:20px;">
+        Tesla Pro Platform · stockinvestmentrading.com
+      </p>
+    </div>
+  `;
+}
 
 export async function sendWelcomeEmail(opts: {
   email: string;
