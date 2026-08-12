@@ -9,6 +9,8 @@ function getResend() {
   return new Resend(key);
 }
 
+// Use EMAIL_FROM env var when domain is verified, e.g. "Tesla Pro <admin@stockinvestmentrading.com>"
+// Until domain is verified on Resend, only emails to the Resend account owner work on free tier
 const FROM = process.env.EMAIL_FROM ?? "Tesla Pro <onboarding@resend.dev>";
 
 // ── Admin messaging helpers ──────────────────────────────────────────────────
