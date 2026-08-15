@@ -1,0 +1,9 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "artifacts/tesla-pro/Dockerfile"
+
+[deploy]
+healthcheckPath = "/"
+healthcheckTimeout = 120
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
