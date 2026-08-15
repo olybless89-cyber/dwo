@@ -14,7 +14,7 @@ COPY artifacts/tesla-pro/ ./artifacts/tesla-pro/
 # Install all dependencies
 RUN pnpm install --frozen-lockfile
 
-# Build the frontend — VITE_API_BASE_URL must be passed at build time
+# Build the frontend — VITE_API_BASE_URL injected at build time via Railway build args
 ARG VITE_API_BASE_URL
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV NODE_ENV=production
@@ -22,7 +22,7 @@ ENV NODE_ENV=production
 RUN pnpm --filter @workspace/tesla-pro run build
 
 # ── Serve with nginx ────────────────────────────────────────────────────────
-FROM nginx:alpine AS runner
+FROM nginx:alpine
 
 # Copy built assets
 COPY --from=builder /app/artifacts/tesla-pro/dist/public /usr/share/nginx/html
