@@ -33,11 +33,9 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/artifacts/api-server/node_modules ./artifacts/api-server/node_modules
 
 ENV NODE_ENV=production
+
+# Railway injects PORT dynamically; default to 8080 for local/other platforms
 ENV PORT=8080
-
-EXPOSE 8080
-
-CMD ["node", "--enable-source-maps", "./dist/index.mjs"]
 
 EXPOSE 8080
 
