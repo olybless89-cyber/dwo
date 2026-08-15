@@ -1,31 +1,43 @@
-FROM node:20-alpine AS base
-WORKDIR /app
+FROM node:22-alpine AS builder
 
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Dependencies stage
-FROM base AS deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
-COPY lib ./lib
-COPY artifacts/api-server/package.json ./artifacts/api-server/
-COPY artifacts/tesla-pro/package.json ./artifacts/tesla-pro/
+WORKDIR /app
+
+# Copy workspace manifests
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml tsconfig.base.json tsconfig.json ./
+
+# Copy all lib packages (api-server depends on them)
+COPY lib/ ./lib/
+
+# Copy the api-server artifact
+COPY artifacts/api-server/ ./artifacts/api-server/
+
+# Install all dependencies
 RUN pnpm install --frozen-lockfile
 
-# Build stage
-FROM deps AS build
-COPY . .
-RUN pnpm run build
+# Build the api-server
+RUN pnpm --filter @workspace/api-server run build
 
-# Production stage
-FROM base AS production
+# ── Runtime stage ──────────────────────────────────────────────────────────
+FROM node:22-alpine AS runner
+
+WORKDIR /app
+
+# Only copy the compiled output
+COPY --from=builder /app/artifacts/api-server/dist ./dist
+
+# pino-pretty transport is loaded at runtime from node_modules
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/artifacts/api-server/node_modules ./artifacts/api-server/node_modules
+
 ENV NODE_ENV=production
+ENV PORT=8080
 
-# Copy only needed files
-COPY --from=build /app/artifacts/api-server/dist ./dist
-COPY --from=build /app/artifacts/api-server/package.json ./
-COPY --from=build /app/artifacts/api-server/build.mjs ./
-COPY --from=build /app/node_modules ./node_modules
+EXPOSE 8080
+
+CMD ["node", "--enable-source-maps", "./dist/index.mjs"]
 
 EXPOSE 8080
 

@@ -29,12 +29,18 @@ app.use(cors({
   origin: [
     /\.netlify\.app$/,
     /\.onrender\.com$/,
+    /\.railway\.app$/,
     /localhost/,
     "https://teslafans.online",
     "https://www.teslafans.online",
+    "https://stockinvestmentrading.com",
+    "https://www.stockinvestmentrading.com",
   ],
   credentials: true,
 }));
+
+// Health check for Railway
+app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
